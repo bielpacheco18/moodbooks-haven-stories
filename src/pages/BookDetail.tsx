@@ -7,19 +7,66 @@ import { booksData } from "@/data/mockData";
 import { useEffect, useState } from "react";
 import { BookType } from "@/data/mockData";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import { BookmarkCheck, ShoppingCart } from "lucide-react";
 
 const BookDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [book, setBook] = useState<BookType | null>(null);
   const [imageError, setImageError] = useState(false);
+  const [isInCart, setIsInCart] = useState(false);
+  const [isMarkedAsRead, setIsMarkedAsRead] = useState(false);
 
   useEffect(() => {
     // Find the book with the matching ID
     const foundBook = booksData.find(book => book.id === id);
     if (foundBook) {
       setBook(foundBook);
+
+      // Check if book is already in cart or marked as read
+      const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+      const readBooks = JSON.parse(localStorage.getItem("readBooks") || "[]");
+      
+      setIsInCart(cartItems.some((item: string) => item === foundBook.id));
+      setIsMarkedAsRead(readBooks.some((item: string) => item === foundBook.id));
     }
   }, [id]);
+
+  const handleAddToCart = () => {
+    if (!book) return;
+
+    const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    
+    if (!isInCart) {
+      const updatedCart = [...cartItems, book.id];
+      localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+      setIsInCart(true);
+      toast.success(`"${book.title}" added to your reading list`);
+    } else {
+      const updatedCart = cartItems.filter((item: string) => item !== book.id);
+      localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+      setIsInCart(false);
+      toast.info(`"${book.title}" removed from your reading list`);
+    }
+  };
+
+  const handleMarkAsRead = () => {
+    if (!book) return;
+
+    const readBooks = JSON.parse(localStorage.getItem("readBooks") || "[]");
+    
+    if (!isMarkedAsRead) {
+      const updatedReadBooks = [...readBooks, book.id];
+      localStorage.setItem("readBooks", JSON.stringify(updatedReadBooks));
+      setIsMarkedAsRead(true);
+      toast.success(`"${book.title}" marked as read`);
+    } else {
+      const updatedReadBooks = readBooks.filter((item: string) => item !== book.id);
+      localStorage.setItem("readBooks", JSON.stringify(updatedReadBooks));
+      setIsMarkedAsRead(false);
+      toast.info(`"${book.title}" unmarked as read`);
+    }
+  };
 
   // Fallback image based on mood
   const getFallbackImage = (mood: string) => {
@@ -126,8 +173,21 @@ const BookDetail = () => {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <Button>Add to Reading List</Button>
-              <Button variant="outline">Mark as Read</Button>
+              <Button 
+                onClick={handleAddToCart}
+                variant={isInCart ? "secondary" : "default"}
+              >
+                <ShoppingCart className="mr-2" />
+                {isInCart ? "Remove from Reading List" : "Add to Reading List"}
+              </Button>
+              
+              <Button 
+                onClick={handleMarkAsRead} 
+                variant={isMarkedAsRead ? "secondary" : "outline"}
+              >
+                <BookmarkCheck className="mr-2" />
+                {isMarkedAsRead ? "Unmark as Read" : "Mark as Read"}
+              </Button>
             </div>
           </div>
         </div>
