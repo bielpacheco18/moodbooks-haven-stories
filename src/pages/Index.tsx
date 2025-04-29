@@ -3,6 +3,7 @@ import { Hero } from "@/components/Hero";
 import { Header } from "@/components/Header";
 import { BookSection } from "@/components/BookSection";
 import { MoodTag } from "@/components/MoodTag";
+import { BookCard } from "@/components/BookCard";
 import { useState } from "react";
 import { 
   booksData, 
@@ -64,15 +65,7 @@ const Index = () => {
             </div>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
               {getFilteredBooks().map((book) => (
-                <div key={book.id}>
-                  <img
-                    src={book.coverUrl}
-                    alt={book.title}
-                    className="h-64 w-full object-cover rounded-md mb-2"
-                  />
-                  <h3 className="font-heading font-medium line-clamp-1">{book.title}</h3>
-                  <p className="text-sm text-muted-foreground">{book.author}</p>
-                </div>
+                <BookCard key={book.id} {...book} />
               ))}
             </div>
           </div>

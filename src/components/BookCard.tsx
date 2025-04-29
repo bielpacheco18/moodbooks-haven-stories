@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { MoodTag } from "./MoodTag";
+import { useState } from "react";
 
 interface BookCardProps {
   id: string;
@@ -22,14 +23,36 @@ export function BookCard({
   rating,
   className,
 }: BookCardProps) {
+  const [imageError, setImageError] = useState(false);
+  
+  // Fallback image based on mood
+  const getFallbackImage = () => {
+    switch (mood) {
+      case "happy":
+        return "https://images.unsplash.com/photo-1513001900722-370f803f498d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+      case "calm":
+        return "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+      case "reflective":
+        return "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+      case "excited":
+        return "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+      case "melancholy":
+        return "https://images.unsplash.com/photo-1610882648335-ced8fc8fa6b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+      default:
+        return "https://images.unsplash.com/photo-1476275466078-4007374efbbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+    }
+  };
+
   return (
     <div className={cn("book-card group", className)}>
       <Link to={`/book/${id}`}>
-        <div className="book-cover mb-3">
+        <div className="book-cover mb-3 relative h-48 overflow-hidden rounded-md bg-muted">
           <img
-            src={coverUrl}
+            src={imageError ? getFallbackImage() : coverUrl}
             alt={`${title} by ${author}`}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={() => setImageError(true)}
+            loading="lazy"
           />
         </div>
         <h3 className="font-heading text-base font-medium line-clamp-1">{title}</h3>
