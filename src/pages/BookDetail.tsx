@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,7 @@ const BookDetail = () => {
   const [imageError, setImageError] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const [isMarkedAsRead, setIsMarkedAsRead] = useState(false);
+  const [errorImages, setErrorImages] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     // Find the book with the matching ID
@@ -84,6 +84,10 @@ const BookDetail = () => {
       default:
         return "https://images.unsplash.com/photo-1476275466078-4007374efbbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
     }
+  };
+
+  const handleRelatedBookImageError = (bookId: string) => {
+    setErrorImages(prev => ({ ...prev, [bookId]: true }));
   };
 
   if (!book) {
@@ -203,10 +207,11 @@ const BookDetail = () => {
                   <Link to={`/book/${relatedBook.id}`}>
                     <div className="mb-2 aspect-[2/3] overflow-hidden rounded bg-muted">
                       <img
-                        src={relatedBook.coverUrl}
+                        src={errorImages[relatedBook.id] ? getFallbackImage(relatedBook.mood) : relatedBook.coverUrl}
                         alt={relatedBook.title}
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         loading="lazy"
+                        onError={() => handleRelatedBookImageError(relatedBook.id)}
                       />
                     </div>
                     <h4 className="font-medium line-clamp-1">{relatedBook.title}</h4>
